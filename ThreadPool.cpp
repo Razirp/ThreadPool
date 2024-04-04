@@ -1,96 +1,7 @@
-#include <functional>
-// #include <pthread.h>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
-#include <list>
-#include <cstdint>
-#include <semaphore>
+#include "ThreadPool.hpp"
 
 namespace thread_utils
 {
-class task_entry
-{
-    // 队列：双向链表/环形链表
-    // task_entry *next;
-private:
-    void *task_data;
-    std::function<void(void*)> task_callback;
-public:
-    task_entry(std::function<void(void*)> task_callback, void *task_data): task_callback(task_callback), task_data(task_data) {}
-
-    void run()
-    {
-        task_callback(task_data);
-    }
-
-};
-
-
-class thread_pool {
-private:
-    class worker_thread
-    {
-    private:
-        std::atomic<std::uint8_t> status;       // 状态变量，0: 线程被终止；1: 线程正在运行; 2: 线程被暂停
-        std::binary_semaphore pause_sem;       // 信号量，用于线程暂停时的阻塞
-        thread_pool *pool;      // 线程池
-        std::thread thread;     // 工作线程
-    public:
-        worker_thread(thread_pool* pool) : pool(pool), status(1), pause_sem(0), thread(make_thread()) {}
-
-        ~worker_thread()
-        {
-            terminate();
-            if (thread.joinable())
-            {
-                thread.join();
-            }
-        }
-
-        std::thread&& make_thread();        // 创建线程，返回线程对象的右值引用
-
-        void terminate()
-        {
-            status.store(0);
-        }
-
-        void pause()
-        {
-            status.store(2);
-        }
-
-        void resume()
-        {
-            status.store(1);
-            pause_sem.release();    // 唤醒线程
-        }
-    };
-
-    std::uint8_t status;        // 线程池的状态，0: 线程池被终止；1: 线程池正在运行；2: 线程池被暂停
-    size_t max_thread_count;                // 线程池中线程的最大数量，0表示没有限制
-    size_t max_task_count;                  // 任务队列中任务的最大数量，0表示没有限制
-    std::mutex task_queue_mutex;         // 任务队列的互斥锁
-    std::mutex worker_list_mutex;         // 工作队列的互斥锁
-    std::condition_variable task_queue_cv; // 任务队列的条件变量
-    std::queue<task_entry> task_queue;      // 任务队列，其中存储着待执行的任务
-    std::list<worker_thread> worker_list;     // 线程列表，其中存储着工作线程
-
-    
-    
-public:
-    bool is_stopped;                    // 线程池是否停止
-    thread_pool(size_t initial_thread_count, size_t max_task_count = 0);   // 仅指定初始线程数量，此时最大线程数量与初始线程数量相同
-    thread_pool(size_t initial_thread_count, size_t max_thread_count, size_t max_task_count = 0);  // 同时指定初始线程数量和最大线程数量，但当初始线程数量大于最大线程数量时，最大线程数量被设置为初始线程数量
-    ~thread_pool();
-    template<typename F, typename... Args>
-    void commit(F&& f, Args&&... args);
-    void start();
-    void stop();
-};
-
 
 std::thread&& thread_pool::worker_thread::make_thread()
 {   // 创建线程，返回线程对象的右值引用
@@ -101,28 +12,120 @@ std::thread&& thread_pool::worker_thread::make_thread()
                 while (this->status.load() == 2)
                 {   // 如果线程被暂停，则阻塞线程，等待信号量唤醒
                     this->pause_sem.acquire();  // 阻塞线程
+                    if (this->status.load() == 0)
+                    {   // 如果线程被设置为终止，则退出线程
+                        return;
+                    }
                 }
                 // 在运行状态下，从任务队列中取出一个任务并执行
-                std::unique_lock<std::mutex> lock(this->pool->task_queue_mutex);    // 在取任务前，加锁
-                if (this->pool->task_queue.empty())
+                std::unique_lock<std::shared_mutex> lock(this->pool->task_queue_mutex);    // 在取任务前，加锁
+                while (this->pool->task_queue.empty())
                 {   // 如果任务队列为空，则等待条件变量唤醒
-                    this->pool->task_queue_cv.wait(lock, [this](){
-                        return !this->pool->task_queue.empty();
-                    }); // 等待条件变量唤醒； 相当于：while(this->pool->task_queue.empty()) { this->pool->task_queue_cv.wait(lock); }
+                    if (this->status.load() == 0)
+                    {   // 如果线程被设置为终止，则退出线程
+                        return;
+                    }
+                    status.store(3);    // 设置线程状态为等待任务
+                    this->pool->task_queue_cv.wait(lock); // 等待条件变量唤醒；
+                    if (this->status.load() == 0)
+                    {   // 如果线程被设置为终止，则退出线程
+                        return;
+                    }
+                    else
+                    {
+                        status.store(1);    // 设置线程状态为运行
+                    }
                 }
                 // 取出一个任务
-                task_entry task = this->pool->task_queue.front();
-                this->pool->task_queue.pop();
-                lock.unlock();  // 取出任务后，释放锁
-                task.run();     // 执行任务
+                try
+                {
+                    std::function<void()> task = std::move(this->pool->task_queue.front());
+                    this->pool->task_queue.pop();
+                    lock.unlock();  // 取出任务后，释放锁
+                    task();     // 执行任务
+                }
+                catch(const std::exception& e)
+                {   // 如果任务执行过程中发生异常，则打印异常信息并终止线程
+                    std::cerr << e.what() << '\n';
+                    this->terminate();
+                    return;
+                }
             }
         }
     );
 }
 
+thread_pool::thread_pool(
+    size_t initial_thread_count, 
+    size_t max_thread_count, 
+    size_t max_task_count = 0
+) : max_thread_count((initial_thread_count > max_thread_count) ? initial_thread_count : max_thread_count), 
+    max_task_count(max_task_count),
+    status(1)
+{   // 同时指定初始线程数量和最大线程数量，但当初始线程数量大于最大线程数量时，最大线程数量被设置为初始线程数量
+    for (size_t i = 0; i < initial_thread_count; i++)
+    {   // 创建线程
+        worker_list.push_back(worker_thread(this));
+    }
 }
 
-int main(int argc, char *argv[])
+thread_pool::~thread_pool()
 {
-    return 0;
+    terminate();
 }
+
+void thread_pool::terminate()
+{
+    status.store(0);    // 设置线程池的状态为终止
+    for (auto& worker : worker_list)
+    {   // 终止所有线程
+        worker.terminate();
+    }
+    task_queue_cv.notify_all(); // 唤醒所有等待任务的阻塞线程
+}
+
+void thread_pool::pause()
+{
+    status.store(2);    // 设置线程池的状态为暂停
+    for (auto& worker : worker_list)
+    {   // 暂停所有线程
+        worker.pause();
+    }
+}
+
+void thread_pool::resume()
+{
+    status.store(1);    // 设置线程池的状态为运行
+    for (auto& worker : worker_list)
+    {   // 恢复所有线程
+        worker.resume();
+    }
+}
+
+template<typename F, typename... Args>
+auto commit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
+{   // 提交任务
+    using return_type = decltype(f(args...));
+    auto task = std::make_shared<std::packaged_task<return_type()>>(
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+    );
+    std::future<return_type> res = task->get_future();
+    {
+        std::unique_lock<std::shared_mutex> lock(task_queue_mutex);
+        if (max_task_count > 0 && task_queue.size() >= max_task_count)
+        {   // 如果任务队列已满，则等待条件变量唤醒
+            task_queue_cv.wait(lock, [this](){
+                return task_queue.size() < max_task_count;
+            });
+        }
+        task_queue.emplace([task](){ (*task)(); });
+    }
+    task_queue_cv.notify_one();
+    return res;
+}
+
+
+
+}
+
+

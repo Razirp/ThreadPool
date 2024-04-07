@@ -55,28 +55,51 @@ std::thread&& thread_pool::worker_thread::make_thread()
     );
 }
 
-thread_pool::thread_pool(
-    size_t initial_thread_count, 
-    size_t max_thread_count, 
-    size_t max_task_count = 0
-) : max_thread_count((initial_thread_count > max_thread_count) ? initial_thread_count : max_thread_count), 
-    max_task_count(max_task_count),
-    status(1)
-{   // 同时指定初始线程数量和最大线程数量，但当初始线程数量大于最大线程数量时，最大线程数量被设置为初始线程数量
-    for (size_t i = 0; i < initial_thread_count; i++)
-    {   // 创建线程
-        worker_list.push_back(worker_thread(this));
-    }
-}
-
 thread_pool::~thread_pool()
 {
     terminate();
 }
 
+template<typename F, typename... Args>
+auto thread_pool::submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
+{   // 提交任务
+    // 先检查是否可以提交任务
+    if (std::int8_t current_status = this->status.load(); current_status != 1)
+    {   // 如果线程池的状态不是运行状态，则拒绝提交任务
+        switch(current_status)
+        {
+            case 0:
+                throw std::runtime_error("[thread_pool::submit][error]: thread pool is terminating");
+            case 2:
+                throw std::runtime_error("[thread_pool::submit][error]: thread pool is paused");
+            case 3:
+                throw std::runtime_error("[thread_pool::submit][error]: thread pool is not accepting new tasks");
+            default:
+                throw std::runtime_error("[thread_pool::submit][error]: thread pool is not running");
+        }
+    }
+    else if (max_task_count > 0 && get_task_count() >= max_task_count)
+    {   // 如果任务队列已满，则拒绝提交任务
+        throw std::runtime_error("[thread_pool::submit][error]: task queue is full");
+    }
+
+    using return_type = decltype(f(args...));
+    auto task = std::make_shared<std::packaged_task<return_type()>>(
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+    );
+    std::future<return_type> res = task->get_future();
+
+    std::unique_lock<std::shared_mutex> lock(task_queue_mutex);
+    task_queue.emplace([task](){ (*task)(); }); // 将任务封装为一个lambda表达式并放入任务队列   // 该lambda表达式会调用std::packaged_task对象的operator()方法，从而执行任务
+    lock.unlock();
+    task_queue_cv.notify_one();
+    return res;
+}
+
 void thread_pool::terminate()
 {
     status.store(0);    // 设置线程池的状态为终止
+    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
     for (auto& worker : worker_list)
     {   // 终止所有线程
         worker.terminate();
@@ -87,6 +110,7 @@ void thread_pool::terminate()
 void thread_pool::pause()
 {
     status.store(2);    // 设置线程池的状态为暂停
+    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
     for (auto& worker : worker_list)
     {   // 暂停所有线程
         worker.pause();
@@ -96,36 +120,25 @@ void thread_pool::pause()
 void thread_pool::resume()
 {
     status.store(1);    // 设置线程池的状态为运行
+    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
     for (auto& worker : worker_list)
     {   // 恢复所有线程
         worker.resume();
     }
 }
 
-template<typename F, typename... Args>
-auto commit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
-{   // 提交任务
-    using return_type = decltype(f(args...));
-    auto task = std::make_shared<std::packaged_task<return_type()>>(
-        std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-    );
-    std::future<return_type> res = task->get_future();
+void thread_pool::remove_thread(std::size_t count_to_remove)
+{   // 移除min(count_to_remove, worker_list.size())个线程
+    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
+    count_to_remove = std::min(count_to_remove, worker_list.size());
+    auto it = worker_list.end();
+    for (std::size_t i = 0; i < count_to_remove; ++i)
     {
-        std::unique_lock<std::shared_mutex> lock(task_queue_mutex);
-        if (max_task_count > 0 && task_queue.size() >= max_task_count)
-        {   // 如果任务队列已满，则等待条件变量唤醒
-            task_queue_cv.wait(lock, [this](){
-                return task_queue.size() < max_task_count;
-            });
-        }
-        task_queue.emplace([task](){ (*task)(); });
+        --it;
+        it->terminate();
     }
-    task_queue_cv.notify_one();
-    return res;
+    task_queue_cv.notify_all(); // 唤醒所有等待任务的阻塞线程，以便它们能够检查线程是否被终止
+    worker_list.erase(it, worker_list.end());   // 从线程列表中移除工作线程对象并析构
 }
 
-
-
-}
-
-
+} // namespace thread_utils

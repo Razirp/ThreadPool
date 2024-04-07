@@ -1,0 +1,3 @@
+/home/pypyr/codes/ThreadPool/build/CMakeFiles/thread_pool.dir
+/home/pypyr/codes/ThreadPool/build/CMakeFiles/edit_cache.dir
+/home/pypyr/codes/ThreadPool/build/CMakeFiles/rebuild_cache.dir

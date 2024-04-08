@@ -40,9 +40,11 @@ private:
     std::condition_variable_any task_queue_cv; // 任务队列的条件变量
     std::queue<std::function<void()>> task_queue;      // 任务队列，其中存储着待执行的任务
     std::list<worker_thread> worker_list;     // 线程列表，其中存储着工作线程
-    // 禁用拷贝构造函数和拷贝赋值运算符
+    // 禁用拷贝/移动构造函数及赋值运算符
     thread_pool(const thread_pool&) = delete;
+    thread_pool(thread_pool&&) = delete;
     thread_pool& operator=(const thread_pool&) = delete;
+    thread_pool& operator=(thread_pool&&) = delete;
 public:
     thread_pool(std::size_t initial_thread_count, std::size_t max_task_count = 0);
     ~thread_pool();
@@ -60,6 +62,8 @@ public:
     std::size_t get_task_count();
 };
 
+
+
 /**
  * @class thread_pool::worker_thread
  * @brief Represents a worker thread in a thread pool.
@@ -75,9 +79,11 @@ private:
     std::binary_semaphore pause_sem;       // 信号量，用于线程暂停时的阻塞
     thread_pool *pool;      // 线程池
     std::thread thread;     // 工作线程
-    // 禁用拷贝构造函数和拷贝赋值运算符
+    // 禁用拷贝/移动构造函数及赋值运算符
     worker_thread(const worker_thread&) = delete;
+    worker_thread(worker_thread&&) = delete;
     worker_thread& operator=(const worker_thread&) = delete;
+    worker_thread& operator=(worker_thread&&) = delete;
 public:
     worker_thread(thread_pool* pool);
     ~worker_thread();
@@ -132,6 +138,21 @@ auto thread_pool::submit(F&& f, Args&&... args) -> std::future<decltype(f(args..
     lock.unlock();
     task_queue_cv.notify_one();
     return res;
+}
+
+inline void thread_pool::set_max_task_count(std::size_t count_to_set)
+{   // 设置任务队列中任务的最大数量；如果设置后的最大数量小于当前任务数量，则会拒绝新提交的任务，直到任务数量小于等于最大数量
+    max_task_count.store(count_to_set);
+}
+
+inline std::int8_t thread_pool::worker_thread::get_status() const
+{
+    return status.load();
+}
+
+inline void thread_pool::worker_thread::pause()
+{
+    status.store(2);
 }
 
 } // namespace thread_utils

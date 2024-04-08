@@ -22,7 +22,7 @@ To build the thread pool library from source, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/thread-pool-library.git
+   git clone https://github.com/Razirp/ThreadPool.git
    ```
 2. Navigate to the project directory:
    ```
@@ -79,4 +79,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any questions or inquiries, please reach out to me at your-email@example.com.
+For any questions or inquiries, please reach out to me at RenPengyu2001@outlook.com.

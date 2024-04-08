@@ -26,7 +26,7 @@ To build the thread pool library from source, follow these steps:
    ```
 2. Navigate to the project directory:
    ```
-   cd thread-pool-library
+   cd ThreadPool
    ```
 3. Create a build directory and navigate into it:
    ```

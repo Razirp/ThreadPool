@@ -19,7 +19,7 @@ C++线程池库专为使用一组工作线程同时管理和执行任务而设�
 ## 项目文件结构
 
 ```
-Razirp/ThreadPool/
+ThreadPool/
 ├── README.md
 ├── README_EN.md	# 英文README
 ├── LICENSE			# MIT LICENSE

@@ -33,11 +33,20 @@ namespace thread_utils
 class thread_pool {
 private:
     class worker_thread;        // 工作线程类
-    std::atomic<std::int8_t> status;        // 线程池的状态，0: 线程池将终止；1: 线程池正在运行；2: 线程池被暂停
-    std::atomic<std::size_t> max_task_count;                  // 任务队列中任务的最大数量，0表示没有限制    // 当任务队列中的任务数量将或已经超过此值时，新提交的任务将被拒绝
+    enum class status_t : std::int8_t { 
+        TERMINATED = -1, 
+        TERMINATING = 0, 
+        RUNNING = 1, 
+        PAUSED = 2, 
+        SHUTDOWN = 3
+    };  // 线程池的状态，-1: 线程池已终止；0: 线程池将终止；1: 线程池正在运行；2: 线程池被暂停；3: 线程池在等待任务完成，但不再接受新任务
+    std::atomic<status_t> status;        
+    std::atomic<std::size_t> max_task_count;  // 任务队列中任务的最大数量，0表示没有限制    // 当任务队列中的任务数量将或已经超过此值时，新提交的任务将被拒绝
+    std::shared_mutex status_mutex;         // 状态变量的互斥锁       
     std::shared_mutex task_queue_mutex;         // 任务队列的互斥锁
     std::shared_mutex worker_list_mutex;        // 线程列表的互斥锁
     std::condition_variable_any task_queue_cv; // 任务队列的条件变量
+    std::condition_variable_any task_queue_empty_cv; // 任务队列为空的条件变量
     std::queue<std::function<void()>> task_queue;      // 任务队列，其中存储着待执行的任务
     std::list<worker_thread> worker_list;     // 线程列表，其中存储着工作线程
     // 禁用拷贝/移动构造函数及赋值运算符
@@ -45,16 +54,24 @@ private:
     thread_pool(thread_pool&&) = delete;
     thread_pool& operator=(const thread_pool&) = delete;
     thread_pool& operator=(thread_pool&&) = delete;
+    // 在取得对状态变量的独占访问后，调用以下函数，以确保线程池的状态变更是原子的
+    void pause_with_status_lock();
+    void resume_with_status_lock();
+    void terminate_with_status_lock();
+    void shutdown_with_status_lock();
+    void shutdown_now_with_status_lock();
+    void terminate_with_status_lock();
 public:
     thread_pool(std::size_t initial_thread_count, std::size_t max_task_count = 0);
     ~thread_pool();
     
     template<typename F, typename... Args>
     auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>;
-    
     void pause();
     void resume();
-    void terminate();
+    void shutdown();    // 等待所有任务执行完毕后再终止线程池
+    void shutdown_now();    // 立即终止线程池       // 会丢弃任务队列中的任务
+    void terminate();   // 终止线程池
     void add_thread(std::size_t count_to_add);
     void remove_thread(std::size_t count_to_remove);
     void set_max_task_count(std::size_t count_to_set);
@@ -75,8 +92,16 @@ public:
 class thread_pool::worker_thread
 {
 private:
-    std::atomic<std::int8_t> status;       // 状态变量，0: 线程将终止；1: 线程正在运行; 2: 线程被暂停；3: 线程在等待任务
+    enum class status_t : std::int8_t { 
+        TERMINATED = -1, 
+        TERMINATING = 0, 
+        RUNNING = 1, 
+        PAUSED = 2, 
+        BLOCKED = 3
+    };  // 状态变量类型，-1:线程已终止；0: 线程将终止；1: 线程正在运行; 2: 线程被暂停；3: 线程在阻塞等待新任务
+    std::atomic<status_t> status;       
     std::binary_semaphore pause_sem;       // 信号量，用于线程暂停时的阻塞
+    std::shared_mutex status_mutex;         // 状态变量的互斥锁
     thread_pool *pool;      // 线程池
     std::thread thread;     // 工作线程
     // 禁用拷贝/移动构造函数及赋值运算符
@@ -84,15 +109,22 @@ private:
     worker_thread(worker_thread&&) = delete;
     worker_thread& operator=(const worker_thread&) = delete;
     worker_thread& operator=(worker_thread&&) = delete;
+    // 在取得对状态变量的独占访问后，调用以下函数，以确保线程的状态变更是原子的
+    status_t terminate_with_status_lock();
+    void pause_with_status_lock();
+    void resume_with_status_lock();
 public:
     worker_thread(thread_pool* pool);
     ~worker_thread();
-    std::int8_t get_status() const;
-    std::int8_t terminate();
+    status_t terminate();
     void pause();
     void resume();
+
 };
 
+// inline/template function implementations
+
+// thread_pool
 /**
  * Submits a task to the thread pool for execution.
  *
@@ -109,24 +141,27 @@ public:
 template<typename F, typename... Args>
 auto thread_pool::submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
 {   // 提交任务
-    // 先检查是否可以提交任务
-    if (std::int8_t current_status = this->status.load(); current_status != 1)
-    {   // 如果线程池的状态不是运行状态，则拒绝提交任务
-        switch(current_status)
-        {
-            case 0:
-                throw std::runtime_error("[thread_pool::submit][error]: thread pool is terminated");
-            case 2:
-                throw std::runtime_error("[thread_pool::submit][error]: thread pool is paused");
-            default:
-                throw std::runtime_error("[thread_pool::submit][error]: thread pool is not running");
-        }
+    std::shared_lock<std::shared_mutex> status_lock(status_mutex);  // 为状态变量加共享锁，以确保线程池的状态是稳定的
+    switch (status.load())
+    {
+    case status_t::TERMINATED: // 线程池已终止
+        throw std::runtime_error("[thread_pool::submit][error]: thread pool is terminated");
+    case status_t::TERMINATING: // 线程池将终止
+        throw std::runtime_error("[thread_pool::submit][error]: thread pool is terminating");
+    case status_t::PAUSED: // 线程池被暂停
+        throw std::runtime_error("[thread_pool::submit][error]: thread pool is paused");
+    case status_t::SHUTDOWN: // 线程池在等待任务完成，但不再接受新任务
+        throw std::runtime_error("[thread_pool::submit][error]: thread pool is waiting for tasks to complete, but not accepting new tasks");
+    case status_t::RUNNING: // 线程池正在运行
+        break;
+    default:
+        throw std::runtime_error("[thread_pool::submit][error]: unknown status");
     }
-    else if (max_task_count > 0 && get_task_count() >= max_task_count)
+    
+    if (max_task_count > 0 && get_task_count() >= max_task_count)
     {   // 如果任务队列已满，则拒绝提交任务
         throw std::runtime_error("[thread_pool::submit][error]: task queue is full");
     }
-
     using return_type = decltype(f(args...));
     auto task = std::make_shared<std::packaged_task<return_type()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...)
@@ -143,16 +178,6 @@ auto thread_pool::submit(F&& f, Args&&... args) -> std::future<decltype(f(args..
 inline void thread_pool::set_max_task_count(std::size_t count_to_set)
 {   // 设置任务队列中任务的最大数量；如果设置后的最大数量小于当前任务数量，则会拒绝新提交的任务，直到任务数量小于等于最大数量
     max_task_count.store(count_to_set);
-}
-
-inline std::int8_t thread_pool::worker_thread::get_status() const
-{
-    return status.load();
-}
-
-inline void thread_pool::worker_thread::pause()
-{
-    status.store(2);
 }
 
 } // namespace thread_utils

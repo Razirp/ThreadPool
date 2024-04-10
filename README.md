@@ -13,7 +13,7 @@ C++线程池库专为使用一组工作线程同时管理和执行任务而设�
 - 动态管理一组工作线程池。
 - 支持任务暂停、恢复及终止。
 - 允许设置队列中任务数量的最大限制。
-- 使用`std::shared_mutex`和`std::condition_variable`进行线程安全操作。
+- 使用`std::shared_mutex`和`std::condition_variable`等进行线程安全操作。
 - 对任务执行过程中的异常进行处理。
 
 ## 项目文件结构
@@ -42,7 +42,7 @@ ThreadPool/
    git clone https://github.com/Razirp/ThreadPool.git
    ```
 
-   > 亦可通过ssh/GitHub CLI进行克隆、直接下载zip压缩包等你所熟悉的任何可行方式获得源代码。
+   > 亦可通过你所熟悉的任何可行的方式（如ssh/GitHub CLI进行克隆、直接下载zip压缩包等）获得源代码。
 
 2. 进入项目目录：
 

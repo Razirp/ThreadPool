@@ -17,17 +17,17 @@ thread_pool::worker_thread::worker_thread(thread_pool* pool) :
         [this](){       // 线程的执行逻辑
             while (true)
             {   
-                std::unique_lock<std::shared_mutex> unique_lock_status(this->status_mutex, std::defer_lock);    // 创建独占锁，但不立即加锁
-                std::shared_lock<std::shared_mutex> shared_lock_status(this->status_mutex, std::defer_lock);    // 创建共享锁，但不立即加锁
+                std::unique_lock<std::shared_mutex> unique_lock_status(this->status_mutex);
                 while(true)
                 {
-                    shared_lock_status.lock();
+                    if (!unique_lock_status.owns_lock())
+                    {
+                        unique_lock_status.lock();
+                    }
                     bool break_flag = false;
                     switch (this->status.load())
                     {
                     case status_t::TERMINATING: // 线程被设置为将终止
-                        shared_lock_status.unlock();
-                        unique_lock_status.lock();
                         this->status.store(status_t::TERMINATED);
                     case status_t::TERMINATED:  // 线程已终止
                         return;
@@ -35,17 +35,17 @@ thread_pool::worker_thread::worker_thread(thread_pool* pool) :
                         break_flag = true;
                         break;
                     case status_t::PAUSED:   // 线程被设置为暂停
-                        shared_lock_status.unlock();
+                        unique_lock_status.unlock();
                         this->pause_sem.acquire();  // 阻塞线程
                         break;
                     case status_t::BLOCKED:  // 线程被设置为等待任务
                     default:    // 未知状态
-                        shared_lock_status.unlock();
+                        unique_lock_status.unlock();
                         throw std::runtime_error("[thread_pool::worker_thread::worker_thread][error]: undefined status");
                     }
                     if (break_flag)
                     {
-                        shared_lock_status.unlock();
+                        unique_lock_status.unlock();
                         break;
                     }
                 }
@@ -55,7 +55,10 @@ thread_pool::worker_thread::worker_thread(thread_pool* pool) :
                 {   // 如果任务队列为空，则等待条件变量唤醒
                     while(true)
                     {
-                        unique_lock_status.lock();
+                        if (!unique_lock_status.owns_lock())
+                        {
+                            unique_lock_status.lock();
+                        }
                         bool break_flag = false;
                         switch (this->status.load())
                         {
@@ -88,7 +91,10 @@ thread_pool::worker_thread::worker_thread(thread_pool* pool) :
                     this->pool->task_queue_cv.wait(unique_lock_task_queue); // 等待条件变量唤醒；
                     while(true)
                     {
-                        unique_lock_status.lock();
+                        if (!unique_lock_status.owns_lock())
+                        {
+                            unique_lock_status.lock();
+                        }
                         bool break_flag = false;
                         switch (this->status.load())
                         {

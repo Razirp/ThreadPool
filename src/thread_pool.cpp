@@ -106,6 +106,33 @@ void thread_pool::shutdown_with_status_lock()
     terminate_with_status_lock();
 }
 
+void thread_pool::wait_with_status_lock()
+{   // 等待所有任务执行完毕
+    switch (status.load())
+    {
+    case status_t::TERMINATED:  // 线程池已终止
+        return;     // 在这种状态下，不需要等待
+    case status_t::TERMINATING: // 线程池将终止
+    case status_t::PAUSED: // 线程池被暂停
+    case status_t::SHUTDOWN: // 线程池在等待任务完成，但不再接受新任务
+    case status_t::RUNNING: // 线程池正在运行
+        break;
+    default:
+        throw std::runtime_error("[thread_pool::wait][error]: unknown status");
+    }
+    std::shared_lock<std::shared_mutex> lock(task_queue_mutex);
+    while (!task_queue.empty())
+    {   // 等待任务队列为空
+        task_queue_empty_cv.wait(lock);
+    }
+}
+
+void thread_pool::wait()
+{   // 等待所有任务执行完毕
+    std::shared_lock<std::shared_mutex> lock(status_mutex); // wait操作不会改变线程池的状态，因此只需要共享锁
+    wait_with_status_lock();
+}
+
 /**
  * @brief Terminates the thread pool.
  * 
@@ -179,7 +206,7 @@ void thread_pool::terminate()
  */
 void thread_pool::add_thread(std::size_t count_to_add)
 {   // 添加线程
-    std::shared_lock<std::shared_mutex> lock(status_mutex);
+    std::shared_lock<std::shared_mutex> lock_status(status_mutex);
     switch (status.load())
     {
     case status_t::TERMINATED: // 线程池已终止
@@ -192,7 +219,7 @@ void thread_pool::add_thread(std::size_t count_to_add)
     default:
         throw std::runtime_error("[thread_pool::add_thread][error]: unknown status");
     }
-    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
+    std::unique_lock<std::shared_mutex> lock_worker_list(worker_list_mutex);
     for (std::size_t i = 0; i < count_to_add; ++i)
     {
         worker_list.emplace_back(this);
@@ -210,7 +237,7 @@ void thread_pool::add_thread(std::size_t count_to_add)
  */
 void thread_pool::remove_thread(std::size_t count_to_remove)
 {   // 移除min(count_to_remove, worker_list.size())个线程
-    std::shared_lock<std::shared_mutex> lock(status_mutex);
+    std::shared_lock<std::shared_mutex> lock_status(status_mutex);
     switch (status.load())
     {
     case status_t::TERMINATED: // 线程池已终止
@@ -223,7 +250,7 @@ void thread_pool::remove_thread(std::size_t count_to_remove)
     default:
         throw std::runtime_error("[thread_pool::remove_thread][error]: unknown status");
     }
-    std::unique_lock<std::shared_mutex> lock(worker_list_mutex);
+    std::unique_lock<std::shared_mutex> lock_worker_list(worker_list_mutex);
     count_to_remove = std::min(count_to_remove, worker_list.size());
     auto it = worker_list.end();
     for (std::size_t i = 0; i < count_to_remove; ++i)

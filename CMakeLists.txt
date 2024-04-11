@@ -17,17 +17,21 @@ add_library(ThreadPool SHARED ${SOURCES})
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set_target_properties(ThreadPool PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-add_executable(ThreadPoolTest tests/test_thread_pool.cpp)
+add_executable(FunctionalTest tests/functional_test.cpp)
+add_executable(PerformanceTest tests/performance_test.cpp)
 
-target_link_libraries(ThreadPoolTest ThreadPool)
+target_link_libraries(FunctionalTest ThreadPool)
+target_link_libraries(PerformanceTest ThreadPool)
 
 # Set the output directory for the test executable
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set_target_properties(ThreadPoolTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(FunctionalTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(PerformanceTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 # Add the test executable
 
-add_test(NAME ThreadPoolTest COMMAND ThreadPoolTest)
+add_test(NAME FunctionalTest COMMAND FunctionalTest)
+add_test(NAME PerformanceTest COMMAND PerformanceTest)
 
 # Add the test executable to the list of tests
 

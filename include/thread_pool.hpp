@@ -58,9 +58,9 @@ private:
     void pause_with_status_lock();
     void resume_with_status_lock();
     void terminate_with_status_lock();
+    void wait_with_status_lock();
     void shutdown_with_status_lock();
     void shutdown_now_with_status_lock();
-    void terminate_with_status_lock();
 public:
     thread_pool(std::size_t initial_thread_count, std::size_t max_task_count = 0);
     ~thread_pool();
@@ -72,6 +72,7 @@ public:
     void shutdown();    // 等待所有任务执行完毕后再终止线程池
     void shutdown_now();    // 立即终止线程池       // 会丢弃任务队列中的任务
     void terminate();   // 终止线程池
+    void wait();    // 等待所有任务执行完毕
     void add_thread(std::size_t count_to_add);
     void remove_thread(std::size_t count_to_remove);
     void set_max_task_count(std::size_t count_to_set);

@@ -167,7 +167,6 @@ thread_pool::worker_thread::~worker_thread()
 
 thread_pool::worker_thread::status_t thread_pool::worker_thread::terminate_with_status_lock()
 {
-    std::unique_lock<std::shared_mutex> lock(status_mutex);
     status_t last_status = this->status.load();
     switch (last_status)
     {

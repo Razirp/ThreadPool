@@ -74,10 +74,10 @@ int main() {
     }
     std::cout << "Test 6 passed!" << std::endl;
 
-    // Test terminating the thread pool
-    pool.terminate();
+    // Test shutting down the thread pool
+    pool.shutdown();
     try {
-        pool.submit(add, 16, 17); // Should throw exception because pool is terminated
+        pool.submit(add, 16, 17); // Should throw exception because pool is shutting down
         assert(false); // Should not reach here
     } catch (const std::runtime_error& e) {
         assert(std::string(e.what()) == "[thread_pool::submit][error]: thread pool is terminated");

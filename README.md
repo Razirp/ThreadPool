@@ -107,8 +107,8 @@ int main() {
     for (int i = 0; i < 8; ++i) {
         pool.submit(task, i);
     }
-    // pool.terminate(); // 可手动终止线程池
-    // 或者待线程池对象
+    pool.shutdown(); // 可手动终止线程池
+    // 或者待线程池对象离开作用域后自动终止析构
     return 0;
 }
 ```

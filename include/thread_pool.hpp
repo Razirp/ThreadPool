@@ -24,11 +24,8 @@ namespace thread_utils
  * @class thread_pool
  * @brief Represents a thread pool for executing tasks concurrently.
  * 
- * The thread_pool class provides a mechanism for executing tasks concurrently using a pool of worker threads.
- * It manages a queue of tasks and assigns them to worker threads for execution.
- * The thread pool can be paused, resumed, or terminated based on the status set by the user.
- * It also allows dynamically adding or removing worker threads from the pool.
- * The maximum number of tasks in the queue can be set to limit the number of pending tasks.
+ * The thread_pool class provides a simple interface for executing tasks concurrently using a pool of worker threads.
+ * The class allows submitting tasks to the thread pool, pausing and resuming the pool, and shutting down the pool.
  */
 class thread_pool {
 private:
@@ -84,11 +81,9 @@ public:
 
 /**
  * @class thread_pool::worker_thread
- * @brief Represents a worker thread in a thread pool.
+ * @brief Represents a worker thread in the thread pool.
  * 
- * The worker_thread class is responsible for executing tasks from the task queue of a thread pool.
- * It runs in a separate thread and continuously checks for tasks to execute.
- * The thread can be paused, resumed, or terminated based on the status set by the thread pool.
+ * The worker_thread class represents a worker thread in the thread pool. Each worker thread is responsible for executing tasks submitted to the thread pool.
  */
 class thread_pool::worker_thread
 {
@@ -126,18 +121,20 @@ public:
 // inline/template function implementations
 
 // thread_pool
+
 /**
  * Submits a task to the thread pool for execution.
  *
- * This function submits a task to the thread pool for execution. The task is specified by the function `f` and its arguments `args`.
- * The return type of the task is deduced using `decltype(f(args...))`.
+ * This function submits a task to the thread pool for execution. The task is a callable object
+ * that takes arguments specified by the template parameters. The function returns a std::future
+ * object that can be used to retrieve the result of the task once it has completed.
  *
- * @tparam F The type of the function `f`.
- * @tparam Args The types of the arguments `args`.
- * @param f The function to be executed as a task.
- * @param args The arguments to be passed to the function `f`.
- * @return A `std::future` object representing the result of the task.
- * @throws std::runtime_error If the thread pool is not in a valid state to accept new tasks or if the task queue is full.
+ * @tparam F The type of the callable object.
+ * @tparam Args The types of the arguments to the callable object.
+ * @param f The callable object to be executed.
+ * @param args The arguments to be passed to the callable object.
+ * @return A std::future object representing the result of the task.
+ * @throws std::runtime_error if the thread pool is in an invalid state or the task queue is full.
  */
 template<typename F, typename... Args>
 auto thread_pool::submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>

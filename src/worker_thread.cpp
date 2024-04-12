@@ -4,9 +4,12 @@
 
 namespace thread_utils {
 
+
 /**
  * @brief Constructs a worker thread object for the thread pool.
- * 
+ *
+ * This constructor initializes a worker thread object for the thread pool. The worker thread is responsible for executing tasks from the task queue.
+ *
  * @param pool A pointer to the thread pool that owns the worker thread.
  */
 thread_pool::worker_thread::worker_thread(thread_pool* pool) : 
@@ -145,12 +148,13 @@ thread_pool::worker_thread::worker_thread(thread_pool* pool) :
         }
     ) {}
 
+
 /**
  * @brief Destructor for the worker_thread class.
  * 
  * This destructor is responsible for terminating the worker thread and joining it if necessary.
- * If the thread was waiting for a task and has not been awakened at the time of destruction,
- * it is awakened using a condition variable to avoid blocking the destruction process.
+ * If the thread was previously blocked waiting for a task and is still blocked at the time of destruction,
+ * it will be woken up using a condition variable to avoid blocking the destruction process.
  */
 thread_pool::worker_thread::~worker_thread()
 {
@@ -165,6 +169,14 @@ thread_pool::worker_thread::~worker_thread()
     }
 }
 
+/**
+ * @brief Terminates the worker thread.
+ * 
+ * This function is used to terminate the worker thread. It sets the status of the worker thread to TERMINATING and returns the previous status.
+ * If the worker thread is currently running, it will be paused before termination.
+ * 
+ * @return The previous status of the worker thread.
+ */
 thread_pool::worker_thread::status_t thread_pool::worker_thread::terminate_with_status_lock()
 {
     status_t last_status = this->status.load();
@@ -193,6 +205,12 @@ thread_pool::worker_thread::status_t thread_pool::worker_thread::terminate()
     return terminate_with_status_lock();
 }
 
+/**
+ * Pauses the worker thread by changing its status to PAUSED.
+ * If the thread's status is already TERMINATED, TERMINATING, or PAUSED, the function returns immediately.
+ * If the thread's status is BLOCKED or RUNNING, the function changes the status to PAUSED.
+ * If the thread's status is unknown, the function throws a std::runtime_error.
+ */
 void thread_pool::worker_thread::pause_with_status_lock()
 {
     switch (status.load())
@@ -216,6 +234,10 @@ void thread_pool::worker_thread::pause()
     pause_with_status_lock();
 }
 
+/**
+ * Resumes the worker thread if it is currently paused.
+ * If the thread is not paused, blocked, running, or terminating, an exception is thrown.
+ */
 void thread_pool::worker_thread::resume_with_status_lock()
 {
     switch (status.load())

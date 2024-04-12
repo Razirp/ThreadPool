@@ -4,10 +4,11 @@ namespace thread_utils {
 
 /**
  * @brief Constructs a thread pool object.
- * 
+ *
+ * This constructor initializes a thread pool object with the specified initial thread count and maximum task count.
+ *
  * @param initial_thread_count The initial number of threads in the thread pool.
- * @param max_task_count The maximum number of tasks that can be queued in the thread pool. 
- *                       If set to 0, there is no limit on the number of tasks.
+ * @param max_task_count The maximum number of tasks that can be queued in the thread pool.
  */
 thread_pool::thread_pool(
     std::size_t initial_thread_count, 
@@ -27,12 +28,12 @@ thread_pool::~thread_pool()
     terminate();    // 析构时终止线程池
 }
 
+
 /**
- * @brief Pauses the thread pool.
+ * Pauses the thread pool by setting its status to PAUSED and pausing all worker threads.
+ * If the thread pool is already in a paused state or terminated state, no further action is taken.
  * 
- * This function sets the status of the thread pool to "paused" and pauses all the worker threads.
- * 
- * @note This function is thread-safe.
+ * @throws std::runtime_error if the thread pool is in an unknown status.
  */
 void thread_pool::pause_with_status_lock()
 {
@@ -56,9 +57,15 @@ void thread_pool::pause_with_status_lock()
     }
 }
 
+
 /**
- * Resumes the execution of the thread pool.
- * Sets the status of the thread pool to running and resumes all worker threads.
+ * Resumes the thread pool by changing its status to RUNNING and resumes all worker threads.
+ * If the thread pool is already in a terminated, terminating, or running state, this function does nothing.
+ * If the thread pool is paused, it changes the status to RUNNING and resumes all worker threads.
+ * If the thread pool is in a shutdown state, it does nothing.
+ * If the thread pool is in an unknown state, it throws a std::runtime_error.
+ *
+ * @throws std::runtime_error if the thread pool is in an unknown state.
  */
 void thread_pool::resume_with_status_lock()
 {
@@ -82,6 +89,15 @@ void thread_pool::resume_with_status_lock()
     }
 }
 
+/**
+ * @brief Shuts down the thread pool and waits for all tasks to complete.
+ * 
+ * This function sets the status of the thread pool to "SHUTDOWN" and waits for all tasks in the task queue to be completed.
+ * If the thread pool is already terminated, terminating, or in the process of shutting down, this function does nothing.
+ * If the thread pool is paused, it resumes the execution so that tasks can continue to be executed and consume the tasks in the task queue.
+ * 
+ * @throws std::runtime_error if the thread pool is in an unknown status.
+ */
 void thread_pool::shutdown_with_status_lock()
 {   // 等待所有任务执行完毕后再终止线程池   // 设置线程池的状态为等待任务完成
     switch (status.load())
@@ -106,6 +122,17 @@ void thread_pool::shutdown_with_status_lock()
     terminate_with_status_lock();
 }
 
+/**
+ * Waits for all tasks to complete while holding the status lock.
+ * 
+ * This function waits for all tasks in the task queue to complete before returning.
+ * It checks the current status of the thread pool and performs different actions based on the status.
+ * If the status is TERMINATED, the function returns immediately as there is no need to wait.
+ * If the status is TERMINATING, PAUSED, SHUTDOWN, or RUNNING, the function continues to wait until the task queue is empty.
+ * If the status is unknown, a std::runtime_error is thrown.
+ * 
+ * @throws std::runtime_error if the status is unknown.
+ */
 void thread_pool::wait_with_status_lock()
 {   // 等待所有任务执行完毕
     switch (status.load())
@@ -133,11 +160,15 @@ void thread_pool::wait()
     wait_with_status_lock();
 }
 
+
 /**
- * @brief Terminates the thread pool.
+ * @brief Terminates the thread pool with a lock on the status.
  * 
- * This function sets the status of the thread pool to terminate and terminates all worker threads.
- * It also notifies all blocked threads waiting for tasks in the task queue.
+ * This function is responsible for terminating the thread pool by setting the status to TERMINATING,
+ * terminating all worker threads, notifying any blocked threads waiting for tasks, and setting the
+ * status to TERMINATED once all operations are completed.
+ * 
+ * @throws std::runtime_error if the status is unknown.
  */
 void thread_pool::terminate_with_status_lock()
 {
@@ -199,10 +230,17 @@ void thread_pool::terminate()
     terminate_with_status_lock();
 }
 
+
+
 /**
- * Adds a specified number of threads to the thread pool.
+ * @brief Adds threads to the thread pool.
  *
- * @param count_to_add The number of threads to add.
+ * This function adds the specified number of threads to the thread pool.
+ * The threads are created and added to the worker list.
+ *
+ * @param count_to_add The number of threads to add to the thread pool.
+ *
+ * @throws std::runtime_error if the thread pool is in an invalid state.
  */
 void thread_pool::add_thread(std::size_t count_to_add)
 {   // 添加线程
@@ -212,7 +250,7 @@ void thread_pool::add_thread(std::size_t count_to_add)
     case status_t::TERMINATED: // 线程池已终止
     case status_t::TERMINATING: // 线程池将终止
     case status_t::PAUSED: // 线程池被暂停
-        return;     // 在这些状态下，不允许添加线程
+        throw std::runtime_error("[thread_pool::add_thread][error]: cannot add threads to the thread pool in this state");
     case status_t::RUNNING: // 线程池正在运行
     case status_t::SHUTDOWN: // 线程池在等待任务完成，但不再接受新任务
         break;
@@ -226,14 +264,12 @@ void thread_pool::add_thread(std::size_t count_to_add)
     }
 }
 
+
 /**
  * Removes a specified number of threads from the thread pool.
- * 
- * @param count_to_remove The number of threads to remove.
- * 
- * This function removes the minimum of `count_to_remove` and the current number of threads in the thread pool.
- * It terminates the removed threads and removes them from the worker list.
- * After removing the threads, it notifies all waiting threads in the task queue to check if any threads have been terminated.
+ *
+ * @param count_to_remove The number of threads to remove from the thread pool.
+ * @throws std::runtime_error if the thread pool is in an invalid state.
  */
 void thread_pool::remove_thread(std::size_t count_to_remove)
 {   // 移除min(count_to_remove, worker_list.size())个线程
@@ -243,7 +279,7 @@ void thread_pool::remove_thread(std::size_t count_to_remove)
     case status_t::TERMINATED: // 线程池已终止
     case status_t::TERMINATING: // 线程池将终止
     case status_t::PAUSED: // 线程池被暂停
-        return;     // 在这些状态下，不允许移除线程
+        throw std::runtime_error("[thread_pool::remove_thread][error]: cannot remove threads from the thread pool in this state");
     case status_t::RUNNING: // 线程池正在运行
     case status_t::SHUTDOWN: // 线程池在等待任务完成，但不再接受新任务
         break;

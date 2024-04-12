@@ -1,54 +1,94 @@
-# C++ Thread Pool Library
+C++ Thread Pool
+==============
 
-A high-performance thread pool implementation in C++ for executing tasks concurrently.
+📖 **[[中文文档](README_CN.md)]**
+
+This is an implementation of a C++ thread pool based on modern C++, designed to efficiently execute concurrent tasks using a thread pool, thereby avoiding the overhead of frequently creating and destroying threads.
 
 ## Introduction
 
-The C++ Thread Pool Library is designed to manage and execute tasks concurrently using a pool of worker threads. It provides a simple and efficient way to distribute tasks across multiple threads, improving the overall performance and responsiveness of your application.
+The C++ thread pool library is specifically tailored for concurrently managing and executing tasks using a set of working threads. It provides a simple yet efficient way to distribute tasks across multiple threads, significantly boosting the overall performance and responsiveness of your application.
 
 ## Features
 
-- Dynamically manages a pool of worker threads.
-- Supports task pausing, resuming, and termination.
-- Allows setting a maximum limit on the number of tasks in the queue.
-- Thread-safe operations using `std::shared_mutex` and `std::condition_variable`.
-- Exception handling for task execution.
+- Dynamic management of a group of worker threads
+- Support for pausing, resuming, and terminating tasks
+- Ability to set a maximum limit on the number of tasks in the queue
+- Use of `std::shared_mutex` and `std::condition_variable` for thread-safe operations
+- Exception handling during task execution
 
-## Installation
+## Project File Structure
 
-### From Source
+```plaintext
+ThreadPool/
+├── README.md
+├── README_CN.md		# Chinese README
+├── LICENSE				# MIT LICENSE
+├── .gitignore			# Git ignore file, specifying files/folders not to be version controlled
+├── .github/workflows/	# GitHub Actions workflows
+│	└── cmake-multi-platform.yml	# Configuration for GitHub Actions workflow
+├── include/			# Header files directory
+│   └── thread_pool.hpp		# Contains declarations for the thread pool class
+├── src/				# Cpp files directory, containing implementations of non-template/inline member functions declared in the headers
+│   ├── thread_pool.cpp		# Contains implementations of non-template/inline member functions for the thread pool class
+│   └── worker_thread.cpp		# Contains implementations of non-template/inline member functions for the worker thread class
+└── tests/				# Test files directory, containing various test programs
+    ├── functional_test.cpp	# Test program for basic functionality of the thread pool
+    └── performance_test.cpp	# Test program for the performance of the thread pool
+```
+
+## Installation Guide
+
+#### Building from Source Code
 
 To build the thread pool library from source, follow these steps:
 
-1. Clone the repository:
-   ```
+1. Clone the repository (obtain the source code):  
+   ```sh
    git clone https://github.com/Razirp/ThreadPool.git
    ```
-2. Navigate to the project directory:
-   ```
+   > Alternatively, you can use any method you're familiar with, such as cloning via SSH, using the GitHub CLI, or directly downloading a zip archive.
+
+2. Enter the project directory:  
+   ```sh
    cd ThreadPool
    ```
-3. Create a build directory and navigate into it:
-   ```
+   > The directory name may vary depending on your naming.
+
+3. Create and enter the build directory (optional but recommended):  
+   ```sh
    mkdir build
    cd build
    ```
-4. Run `cmake` to generate the build files:
-   ```
+   > Creating a dedicated build directory simplifies the management of files generated during the build/compilation process.
+
+4. Run `cmake` to generate build files:  
+   ```sh
    cmake ..
    ```
-5. Compile the library:
-   ```
+   > The path following `cmake` is the location of the CMakeLists.txt file.
+
+5. Compile the library files:  
+   ```sh
    cmake --build .
    ```
+   > Or, if using GNU make, compile directly using the `make` command in the Makefile's directory:
+   >
+   > ```shell
+   > make
+   > ```
 
-### Using Precompiled Binaries
+#### Using Precompiled Binary Files
 
-Precompiled binaries for Windows and Linux are available in the [Releases](https://github.com/your-username/thread-pool-library/releases) section. Download the appropriate archive for your platform and extract it to a location of your choice.
+Precompiled binary files (dynamic libraries) for Linux, Mac OS, and Windows platforms are available in the "Releases" section. Download the file suitable for your platform, extract it to your chosen location, and then properly link it to your project.
+
+In this case, you will only need to include the `thread_pool.hpp` header file in your project and call the corresponding interfaces.
+
+The method for linking dynamic libraries depends on your build system/compilation tools. Refer to the documentation/references for the tool(s) you are using.
 
 ## Usage
 
-To use the thread pool library, include the `thread_pool.hpp` header file in your project and follow the example below:
+To use the thread pool library, include the `thread_pool.hpp` header file in your project and refer to the following example code:
 
 ```cpp
 #include "thread_pool.hpp"
@@ -60,14 +100,18 @@ void task(int id) {
 }
 
 int main() {
-    thread_utils::thread_pool pool(4); // Create a pool with 4 threads
+    thread_utils::thread_pool pool(4); // Create a thread pool with 4 threads
     for (int i = 0; i < 8; ++i) {
         pool.submit(task, i);
     }
-    pool.terminate(); // Wait for all tasks to complete and terminate the pool
+    pool.shutdown(); // Manually terminate the thread pool
+    // Alternatively, let the thread pool object automatically terminate upon leaving its scope
     return 0;
 }
 ```
+
+You can also consult the test programs in the [tests](tests/) directory (e.g., [`functional_test.cpp`](tests/functional_test.cpp)) to see more examples and understand how to utilize various features.
+
 
 ## Contributing
 

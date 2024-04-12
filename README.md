@@ -24,14 +24,16 @@ ThreadPool/
 ├── README_EN.md	# 英文README
 ├── LICENSE			# MIT LICENSE
 ├── .gitignore		# Git忽略文件，告诉Git哪些文件或文件夹不应该被版本控制
+├── .github/workflows/     # GitHub Action工作流
+│	└── cmake-multi-platform.yml	# GitHub Action工作流的配置
 ├── include/		# 头文件目录
 │   └── thread_pool.hpp		# 包含线程池类的声明
 ├── src/			# cpp文件目录，包含头文件中声明的成员函数等的实现
 │   ├── thread_pool.cpp		# 包含线程池类中非模版/内联成员函数的实现
 │	└── worker_thread.cpp	# 包含工作线程类中非模版/内联成员函数的实现
 └── tests/			# 测试文件目录，包含各个测试程序
-    └── test_thread_pool.cpp	# 对线程池的基本功能的测试程序
-    
+    ├── functional_test.cpp	# 对线程池的基本功能的测试程序
+    └── performance_test.cpp	# 对线程池的性能的测试程序
 ```
 
 安装指南
@@ -114,7 +116,7 @@ int main() {
 }
 ```
 
-> 亦可参照[测试目录](tests/)下的测试程序（如 [test_thread_pool.cpp](tests/test_thread_pool.cpp) 等），以了解更多功能的效果与使用方法。
+> 亦可参照[测试目录](tests/)下的测试程序（如 [`functional_test.cpp`](tests/functional_test.cpp) 等），以了解更多功能的效果与使用方法。
 
 贡献与支持
 ---

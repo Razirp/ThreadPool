@@ -24,6 +24,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc, clang]
+        cpp_compiler: [g++, clang++]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
@@ -35,8 +36,20 @@ jobs:
           - os: macos-latest
             c_compiler: gcc
             cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: gcc
+            cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: g++
           - os: ubuntu-latest
             c_compiler: clang
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: ubuntu-latest
+            c_compiler: gcc
             cpp_compiler: clang++
           
     steps:

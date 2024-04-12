@@ -1,7 +1,7 @@
 C++ Thread Pool
 ==============
 
-📖 **[[中文文档](README_CN.md)]**
+📖 **[[中文版本](README.md)]**
 
 This is an implementation of a C++ thread pool based on modern C++, designed to efficiently execute concurrent tasks using a thread pool, thereby avoiding the overhead of frequently creating and destroying threads.
 

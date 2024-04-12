@@ -15,9 +15,8 @@ jobs:
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
-
       # Set up a matrix to run the following 4 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
+      # 1. <Windows, Release, latest GCC compiler toolchain on the default runner image, default generator>
       # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
       # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
       # 4. <macOS, Release, latest Clang compiler toolchain on the default runner image, default generator>
@@ -26,15 +25,15 @@ jobs:
       matrix:
         build_type: [Release]
         include:
-          # - os: windows-latest
-          #   c_compiler: cl
-          #   cpp_compiler: cl
-          # - os: ubuntu-latest
-          #   c_compiler: gcc
-          #   cpp_compiler: g++
-          # - os: ubuntu-latest
-          #   c_compiler: clang
-          #   cpp_compiler: clang++
+          - os: windows-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -57,8 +56,6 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_STANDARD=20
-        -DCMAKE_CXX_STANDARD_REQUIRED=ON
         -S ${{ github.workspace }}
 
     - name: Build

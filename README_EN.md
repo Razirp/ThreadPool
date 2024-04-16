@@ -69,7 +69,7 @@ ThreadPool/
 
 ## Installation Guide
 
-#### Building from Source Code
+### Building from Source Code
 
 To build the thread pool library from source, follow these steps:
 
@@ -108,7 +108,19 @@ To build the thread pool library from source, follow these steps:
    > make
    > ```
 
-#### Using Precompiled Binary Files
+#### Known Issues
+
+When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:
+
+```shell
+LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
+```
+
+While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, we presently recommend Windows users opt for `g++` compilation to ensure a smooth build process. 
+
+> We sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!
+
+### Using Precompiled Binary Files
 
 Precompiled binary files (dynamic libraries) for Linux, Mac OS, and Windows platforms are available in the "Releases" section. Download the file suitable for your platform, extract it to your chosen location, and then properly link it to your project.
 

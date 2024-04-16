@@ -27,8 +27,8 @@ set_target_properties(ThreadPool PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CUR
 add_executable(FunctionalTest tests/functional_test.cpp)
 add_executable(PerformanceTest tests/performance_test.cpp)
 
-target_link_libraries(FunctionalTest ThreadPool)
-target_link_libraries(PerformanceTest ThreadPool)
+target_link_libraries(FunctionalTest PRIVATE ThreadPool)
+target_link_libraries(PerformanceTest PRIVATE ThreadPool)
 
 # Set the output directory for the test executable
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)

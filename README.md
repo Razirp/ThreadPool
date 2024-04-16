@@ -14,6 +14,7 @@
 - **高效资源分配**: 自动管理线程生命周期并将任务分配给可用线程，减少开销，最大化 CPU 利用率。
 - **可扩展性**：支持动态调整线程池大小，以应对工作负载变化，确保灵活适应不同资源占用需求。
 - **可配置性**: 提供对线程池行为的精细控制，如调整线程数、设定任务队列限制以及控制池暂停、恢复和终止。
+- **跨平台性**: 
 
 ## 功能
 
@@ -56,13 +57,13 @@ ThreadPool/
 ├── .github/workflows/     # GitHub Action工作流
 │	└── cmake-multi-platform.yml	# GitHub Action工作流的配置
 ├── include/		# 头文件目录
-│   └── thread_pool.hpp		# 包含线程池类的声明
+│	└── thread_pool.hpp		# 包含线程池类的声明
 ├── src/			# cpp文件目录，包含头文件中声明的成员函数等的实现
-│   ├── thread_pool.cpp		# 包含线程池类中非模版/内联成员函数的实现
+│	├── thread_pool.cpp		# 包含线程池类中非模版/内联成员函数的实现
 │	└── worker_thread.cpp	# 包含工作线程类中非模版/内联成员函数的实现
 └── tests/			# 测试文件目录，包含各个测试程序
-    ├── functional_test.cpp	# 对线程池的基本功能的测试程序
-    └── performance_test.cpp	# 对线程池的性能的测试程序
+	├── functional_test.cpp	# 对线程池的基本功能的测试程序
+	└── performance_test.cpp	# 对线程池的性能的测试程序
 ```
 
 安装指南
@@ -112,6 +113,18 @@ ThreadPool/
    > ```shell
    > make
    > ```
+
+#### 已知问题
+
+在使用 Microsoft Visual C++ (`cl`) 编译器在 Windows 平台上构建本线程池库时，可能会遇到如下链接错误：
+
+```shell
+LINK : fatal error LNK1104: 无法打开文件“Debug\ThreadPool.lib” [xxx\ThreadPool\build\FunctionalTest.vcxproj]
+```
+
+尽管目前尚未明确此问题的根本原因，但观察到当使用 MinGW-w64 工具链中的 `g++` 编译器时，该问题并未出现。鉴于此情况，对于 Windows 用户，我们现阶段建议优先选用 `g++` 进行编译以确保顺利构建。
+
+> 欢迎了解该问题成因的社区成员提供宝贵见解与解决方案！
 
 ### 使用预编译二进制文件
 

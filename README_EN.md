@@ -50,9 +50,9 @@ The ThreadPool Library is ideal for:
 ## Project File Structure
 
 ```plaintext
-ThreadPool/
-├── README.md
-├── README_CN.md		# Chinese README
+ThreadPool/	
+├── README.md			# Chinese README
+├── README_EN.md		# English README
 ├── LICENSE				# MIT LICENSE
 ├── .gitignore			# Git ignore file, specifying files/folders not to be version controlled
 ├── .github/workflows/	# GitHub Actions workflows

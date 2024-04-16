@@ -1,3 +1,14 @@
+/**
+ * @file thread_pool.hpp
+ * @brief This file contains the definition of the thread_pool class and its related classes.
+ * 
+ * @author Razirp (RenPengyu2001@outlook.com)
+ * @version v1.0.0
+ * @date 2024-04-13
+ * @license MIT License
+ * @copyright (c) 2024 Razirp
+ */
+
 #ifndef THREADPOOL_HPP
 #define THREADPOOL_HPP
 

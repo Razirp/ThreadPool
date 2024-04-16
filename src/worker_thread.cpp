@@ -1,3 +1,14 @@
+/**
+ * @file worker_thread.cpp
+ * @brief Implementation of the worker_thread class.
+ * 
+ * @author Razirp (RenPengyu2001@outlook.com)
+ * @version v1.0.0
+ * @date 2024-04-13
+ * @license MIT License
+ * @copyright (c) 2024 Razirp
+ */
+
 #include "thread_pool.hpp"
 #include <stdexcept>
 #include <iostream>

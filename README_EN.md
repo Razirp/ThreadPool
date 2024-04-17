@@ -227,3 +227,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For any questions or inquiries, please reach out to me at RenPengyu2001@outlook.com.
+
+---
+
+Given the author's personal limitations in ability and time, there may inevitably be oversights or errors present within both the documentation and code of this project. Should you come across any such inaccuracies in either the documentation or code, please feel free to bring them to the author's attention via issues, pull requests, or email. Your valuable feedback will greatly contribute to the ongoing improvement of this project!

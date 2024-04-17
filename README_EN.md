@@ -3,18 +3,21 @@ C++ Thread Pool
 
 📖 **[[中文版本](README.md)]**
 
-This is an implementation of a C++ thread pool based on modern C++, designed to efficiently execute concurrent tasks using a thread pool, thereby avoiding the overhead of frequently creating and destroying threads.
+This is a *Thread Pool Library* implemented using modern C++ Standard Library, offering excellent cross-platform compatibility across platforms supporting C++20 or later features, including Linux, macOS, and Windows.
 
 ## Introduction
 
-The **ThreadPool** Library is a robust and highly-configurable C++ library designed to simplify concurrent programming by providing an efficient mechanism for managing a pool of worker threads. It abstracts away the intricacies of thread creation, synchronization, and task scheduling, allowing developers to focus on implementing their application logic while enjoying improved performance and resource utilization.
+In modern software development, multi-threaded programming has become a crucial means for enhancing application performance and achieving concurrent task handling. However, directly managing multiple threads often introduces increased complexity, resource waste, and synchronization issues. To address these challenges, thread pools emerged as an effective thread management mechanism, pre-creating a set of worker threads to which tasks are submitted. The pool's threads then assume responsibility for task distribution and execution, simplifying thread management, reducing system overhead, and improving resource utilization.
+
+This project presents a simple yet powerful thread pool implementation built upon the modern C++ Standard Library, accompanied by comprehensive documentation and characterized by usability, extensibility, configurability, and cross-platform compatibility.
 
 ### Key Benefits
 
-- **Ease of use**: Simplifies the process of incorporating multithreading into applications, reducing development time and complexity.
-- **Efficient resource allocation**: Automatically manages thread lifecycles and distributes tasks among available threads, minimizing overhead and maximizing CPU utilization.
-- **Scalability**：Enables dynamic resizing of the thread pool in response to workload fluctuations, ensuring adaptability to varying resource utilization requirements.
-- **Configurability**: Offers fine-grained control over thread pool behavior, such as adjusting thread count, setting task queue limits, and controlling pool suspension and termination.
+- **Usability**: Streamlines the process of incorporating multithreading into applications, shortening development time and reducing complexity.
+- **Efficient Resource Allocation**: Automates thread lifecycle management and assigns tasks to available threads, minimizing the overhead of frequent thread instantiation and destruction while maximizing CPU utilization.
+- **Scalability**: Supports dynamic resizing of the thread pool in response to workload fluctuations, ensuring adaptability to varying resource utilization requirements.
+- **Configurability**: Offers fine-grained control over thread pool behavior, such as adjusting thread count, setting task queue limits, and controlling pool suspension, resumption, and termination.
+- **Cross-Platform Compatibility**: Built upon modern C++ Standard Library features, ensuring compatibility across platforms implementing C++20 or later Standard Library features, including Linux, macOS, and Windows, etc.
 
 ## Features
 
@@ -122,32 +125,63 @@ While the root cause of this issue remains unclear at present, it has been obser
 
 ### Using Precompiled Binary Files
 
-Precompiled binary files (dynamic libraries) for Linux, Mac OS, and Windows platforms are available in the "Releases" section. Download the file suitable for your platform, extract it to your chosen location, and then properly link it to your project.
+Precompiled binary files (dynamic libraries) for Linux, macOS, and Windows platforms are available in the "Releases" section. Download the file suitable for your platform, extract it to your chosen location, and then properly link it to your project.
 
 In this case, you will only need to include the `thread_pool.hpp` header file in your project and call the corresponding interfaces.
 
 The method for linking dynamic libraries depends on your build system/compilation tools. Refer to the documentation/references for the tool(s) you are using.
 
+## Documentation
+
+### API Reference
+
+For API reference of this thread pool library, please consult the [directory](docs/API%20docs/).
+
+### Technical Blog
+
+[This blog](docs/blogs/blog.md) provides an introduction to the specific framework and implementation details of this thread pool library.
+
 ## Usage
 
-To use the thread pool library, include the `thread_pool.hpp` header file in your project and refer to the following example code:
+To utilize the thread pool library, include the `thread_pool.hpp` header file in your project and invoke the corresponding thread pool library APIs.
+
+Here is a basic example showcasing how to create a thread pool, submit various types of tasks, and control its state using this thread pool library.
 
 ```cpp
 #include "thread_pool.hpp"
-#include <iostream>
-#include <future>
 
-void task(int id) {
-    std::cout << "Hello from thread " << id << std::endl;
+// Define a simple computational task
+double compute(int x, int y) {
+    return static_cast<double>(x) / y;
 }
 
 int main() {
-    thread_utils::thread_pool pool(4); // Create a thread pool with 4 threads
-    for (int i = 0; i < 8; ++i) {
-        pool.submit(task, i);
-    }
-    pool.shutdown(); // Manually terminate the thread pool
-    // Alternatively, let the thread pool object automatically terminate upon leaving its scope
+    // Create a thread pool with an initial 4 worker threads and a task queue capacity of 100
+    thread_utils::thread_pool pool(4, 100);
+
+    // Submit a computational task, obtaining a future for the result
+    auto future = pool.submit(compute, 100, 5);
+
+    // Submit a lambda task
+    pool.submit([]() {
+        std::cout << "Hello from a lambda task!" << std::endl;
+    });
+
+    // Pause the thread pool, preventing execution of new tasks
+    pool.pause();
+
+    // ... Perform other operations during this period ...
+
+    // Resume the thread pool, resuming task processing
+    pool.resume();
+
+    // Wait for the computational task to complete and retrieve the result
+    double result = future.get();
+    std::cout << "Result: " << result << std::endl;
+
+    // Shut down the thread pool, waiting for all tasks to finish
+    pool.shutdown();
+
     return 0;
 }
 ```

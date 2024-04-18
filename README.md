@@ -4,7 +4,7 @@
 
 📖 **For English users, you can refer to the [English version](README_EN.md).**
 
-基于现代C++标准库实现的线程池，具有良好的跨平台性，兼容包括Linux、macOS和Windows等实现C++20以上的标准库特性的平台。
+基于现代C++标准库实现的线程池，具有良好的跨平台性，兼容包括Linux、macOS和Windows等实现C++20以上标准库特性的平台。
 
 ## 简介
 

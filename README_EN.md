@@ -135,11 +135,11 @@ The method for linking dynamic libraries depends on your build system/compilatio
 
 ### API Reference
 
-For API reference of this thread pool library, please consult the [directory](docs/API%20docs/).
+For API reference of this thread pool library, please consult the [directory](docs_en/API%20docs/).
 
 ### Technical Blog
 
-[This blog](docs/blogs/blog.md) provides an introduction to the specific framework and implementation details of this thread pool library.
+[This blog](docs_en/blogs/blog.md) provides an introduction to the specific framework and implementation details of this thread pool library.
 
 ## Usage
 

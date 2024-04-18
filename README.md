@@ -1,5 +1,7 @@
 # C++ Thread Pool 线程池
 
+[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp)[![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE)[![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)[![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)[![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases)[![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=blue&style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTkuODUgNy4xMWMtLjQyLS40Mi0uOTYtLjY1LTEuNTktLjY1cy0xLjE3LjIxLTEuNTkuNjVMMTQuMDkgMTIuNWMtLjQyLjQyLS42NS45Ni0uNjUgMS41OXMxLjIxIDEuMTcgMS41OSAxLjU5bDUuNDEgNS40MWMuNDIuNDIuOTYuNjUgMS41OS42NXMxLjE3LS4yMSAxLjU5LS42NWwyLjczLTIuNzNjLjQyLS40Mi42NS0uOTYuNjUtMS41OXMtLjIxLTEuMTctLjY1LTEuNTl6Ii8+Cjwvc3ZnPgo=)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501)
+
 📖 **For English users, you can refer to the [English version](README_EN.md).**
 
 基于现代C++标准库实现的线程池，具有良好的跨平台性，兼容包括Linux、macOS和Windows等实现C++20以上的标准库特性的平台。

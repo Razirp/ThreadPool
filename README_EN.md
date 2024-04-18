@@ -226,7 +226,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any questions or inquiries, please reach out to me at RenPengyu2001@outlook.com.
+For any questions or inquiries, please reach out to me at razirp77@outlook.com.
 
 ---
 

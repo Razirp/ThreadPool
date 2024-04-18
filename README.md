@@ -228,11 +228,11 @@ int main() {
 
 许可证
 ---
-本项目采用MIT许可协议 – 详情请参阅[LICENSE](LICENSE)文件。
+本项目采用MIT许可协议 – 详情请参阅 [LICENSE](LICENSE) 文件。
 
 联系方式
 ---
-如有任何问题或咨询，请通过RenPengyu2001@outlook.com与我联系。
+如有任何问题或咨询，请通过 razirp77@outlook.com 与我联系。
 
 ---
 

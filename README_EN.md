@@ -1,7 +1,7 @@
 C++ Thread Pool
 ==============
 
-[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/) [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=blue&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-red?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-purple?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
+[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)  [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=e96140&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-ff0000?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-3399ff?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) ![visitors](https://visitor-badge.glitch.me/badge?page_id=Razirp.ThreadPool&left_color=green&right_color=red) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
 
 📖 **[[中文版本](README.md)]**
 
@@ -62,6 +62,13 @@ ThreadPool/
 ├── .gitignore			# Git ignore file, specifying files/folders not to be version controlled
 ├── .github/workflows/	# GitHub Actions workflows
 │	└── cmake-multi-platform.yml	# Configuration for GitHub Actions workflow
+├── docs/                  # Documents (Chinese)
+│	├── API docs/           # API references
+│	      └── ...
+│	└── blogs/              # blogs
+│	      └── ...
+├── docs_en/               # Documents (English)
+│	└── ...
 ├── include/			# Header files directory
 │   └── thread_pool.hpp		# Contains declarations for the thread pool class
 ├── src/				# Cpp files directory, containing implementations of non-template/inline member functions declared in the headers

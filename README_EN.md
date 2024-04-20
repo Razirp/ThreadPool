@@ -128,9 +128,9 @@ When building this thread pool library using the Microsoft Visual C++ (`cl`) com
 LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
 ```
 
-While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, we presently recommend Windows users opt for `g++` compilation to ensure a smooth build process. 
+While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process. 
 
-> We sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!
+> Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!
 
 ### Using Precompiled Binary Files
 
@@ -213,7 +213,7 @@ You can also consult the test programs in the [tests](tests/) directory (e.g., [
 
 ### Open to the Community
 
-We warmly invite members of the open-source community to contribute in the following areas:
+Warmly invite members of the open-source community to contribute in the following areas:
 
 - **Feature Implementation**: Assist in completing planned features listed in the TODO section, such as implementing new scheduling strategies, supporting core and maximum thread counts, or customizing task rejection policies.
 

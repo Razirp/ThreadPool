@@ -18,7 +18,13 @@ include_directories(include)
 set(SOURCES src/thread_pool.cpp src/worker_thread.cpp)
 
 # Generate the shared library
+if(MSVC)
+message("Use MSVC!")
+add_library(ThreadPool STATIC ${SOURCES})
+else()
 add_library(ThreadPool SHARED ${SOURCES})
+endif()
+
 
 # Set the output directory for the library
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)

@@ -122,15 +122,17 @@ To build the thread pool library from source, follow these steps:
 
 #### Known Issues
 
-When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:
+- [x] [Resolved] See PR [#2](https://github.com/Razirp/ThreadPool/pull/2). Thanks to [@damengziuu](https://github.com/damengziuu)!
 
-```shell
-LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
-```
+   ~~When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:~~
 
-While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process. 
+   ```shell
+   LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
+   ```
 
-> Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!
+   ~~While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process.~~
+
+   > ~~Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!~~
 
 ### Using Precompiled Binary Files
 

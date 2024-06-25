@@ -122,7 +122,9 @@ To build the thread pool library from source, follow these steps:
 
 #### Known Issues
 
-- [x] [Resolved] See PR [#2](https://github.com/Razirp/ThreadPool/pull/2). Thanks to [@damengziuu](https://github.com/damengziuu)!
+- [x] [Partially resolved] See PR [#2](https://github.com/Razirp/ThreadPool/pull/2). Thanks to [@damengziuu](https://github.com/damengziuu):
+
+   > When compiling with MSVC, building a static library instead of a dynamic one serves as a viable alternative solution.
 
    ~~When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:~~
 

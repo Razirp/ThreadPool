@@ -127,7 +127,9 @@ ThreadPool/
 
 #### 已知问题
 
-- [x] 【已解决】见PR [#2](https://github.com/Razirp/ThreadPool/pull/2)，感谢[@damengziuu](https://github.com/damengziuu)的贡献！
+- [x] 【已部分解决】见PR [#2](https://github.com/Razirp/ThreadPool/pull/2)，感谢[@damengziuu](https://github.com/damengziuu)的贡献：
+
+   > 在使用 MSVC 编译时，编译静态链接库而不是动态链接库，是一种可行的替代性解决方案。
 
    ~~在使用 Microsoft Visual C++ (`cl`) 编译器在 Windows 平台上构建本线程池库时，可能会遇到如下链接错误：~~
 

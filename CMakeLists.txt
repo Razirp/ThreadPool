@@ -18,7 +18,8 @@ include_directories(include)
 set(SOURCES src/thread_pool.cpp src/worker_thread.cpp)
 
 # Generate the shared library
-if(MSVC)
+# 如果是 MSVC 编译器，则生成静态库  # If the compiler is MSVC, generate a static library
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 message("Use MSVC!")
 add_library(ThreadPool STATIC ${SOURCES})
 else()

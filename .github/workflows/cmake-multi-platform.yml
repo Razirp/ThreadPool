@@ -15,15 +15,16 @@ jobs:
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
-      # Set up a matrix to run the following 2 configurations:
+      # Set up a matrix to run the following 3 configurations:
       # 1. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
       # 2. <macOS, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      # 3. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         build_type: [Release]
-        cpp_compiler: [g++, clang++]
+        cpp_compiler: [g++, clang++, cl]
         include:
           - os: ubuntu-latest
             cpp_compiler: g++
@@ -31,11 +32,22 @@ jobs:
           - os: macos-latest
             cpp_compiler: clang++
             c_compiler: clang
+          - os: windows-latest
+            cpp_compiler: cl
+            c_compiler: cl
         exclude:
           - os: ubuntu-latest
             cpp_compiler: clang++
+          - os: ubuntu-latest
+            cpp_compiler: cl
           - os: macos-latest
             cpp_compiler: g++
+          - os: macos-latest
+            cpp_compiler: cl
+          - os: windows-latest
+            cpp_compiler: g++
+          - os: windows-latest
+            cpp_compiler: clang++
           
     steps:
     - uses: actions/checkout@v4

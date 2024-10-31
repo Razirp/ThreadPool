@@ -17,18 +17,16 @@ include_directories(include)
 # Add the source files
 set(SOURCES src/thread_pool.cpp src/worker_thread.cpp)
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
 # Generate the shared library
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-message("Use MSVC!")
-add_library(ThreadPool STATIC ${SOURCES})
+	message("Use MSVC!")
+	add_library(ThreadPool SHARED ${SOURCES})
 else()
-add_library(ThreadPool SHARED ${SOURCES})
+	add_library(ThreadPool SHARED ${SOURCES})
 endif()
-
-
-# Set the output directory for the library
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set_target_properties(ThreadPool PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 add_executable(FunctionalTest tests/functional_test.cpp)
 add_executable(PerformanceTest tests/performance_test.cpp)
@@ -36,16 +34,43 @@ add_executable(PerformanceTest tests/performance_test.cpp)
 target_link_libraries(FunctionalTest PRIVATE ThreadPool)
 target_link_libraries(PerformanceTest PRIVATE ThreadPool)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+# if using CL compiler ,using test can't export the dll and exe in bin.
 # Set the output directory for the test executable
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set_target_properties(FunctionalTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set_target_properties(PerformanceTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(ThreadPool PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+)
+set_target_properties(FunctionalTest PROPERTIES 
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(PerformanceTest PROPERTIES 
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-# Add the test executable
+else()
+
+set_target_properties(ThreadPool PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+)
+set_target_properties(FunctionalTest PROPERTIES 
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(PerformanceTest PROPERTIES 
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+# Add the test executable to the list of tests
 
 add_test(NAME FunctionalTest COMMAND FunctionalTest)
 add_test(NAME PerformanceTest COMMAND PerformanceTest)
-
-# Add the test executable to the list of tests
-
 enable_testing()
+
+endif()
+
+
+
+
+
+
+
+
+

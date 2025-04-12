@@ -24,6 +24,14 @@
 #include <shared_mutex>
 #include <future>
 
+#ifdef _WIN32
+    #ifndef DLL_EXPORT
+        #define THREAD_EXPORT __declspec(dllexport)
+    #else
+        #define THREAD_EXPORT __declspec(dllimport)
+    #endif
+#endif
+
 /**
  * @namespace thread_utils
  * @brief A namespace that contains classes and functions related to thread utilities.
@@ -38,7 +46,11 @@ namespace thread_utils
  * The thread_pool class provides a simple interface for executing tasks concurrently using a pool of worker threads.
  * The class allows submitting tasks to the thread pool, pausing and resuming the pool, and shutting down the pool.
  */
+#ifdef _WIN32
+class THREAD_EXPORT thread_pool {
+#else
 class thread_pool {
+#endif
 private:
     class worker_thread;        // 工作线程类
     enum class status_t : std::int8_t { 

@@ -1,6 +1,6 @@
 # C++ Thread Pool 线程池
 
-[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)  [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=e96140&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-ff0000?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-3399ff?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) ![HitCount](https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FRazirp%2FThreadPool.json%3Fcolor%3Dff9900) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
+[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)  [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=e96140&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-ff0000?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-3399ff?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
 
 📖 **For English users, you can refer to the [English version](README_EN.md).**
 
@@ -127,15 +127,19 @@ ThreadPool/
 
 #### 已知问题
 
-在使用 Microsoft Visual C++ (`cl`) 编译器在 Windows 平台上构建本线程池库时，可能会遇到如下链接错误：
+- [x] 【已部分解决】见PR [#2](https://github.com/Razirp/ThreadPool/pull/2)，感谢[@damengziuu](https://github.com/damengziuu)的贡献：
 
-```shell
-LINK : fatal error LNK1104: 无法打开文件“Debug\ThreadPool.lib” [xxx\ThreadPool\build\FunctionalTest.vcxproj]
-```
+   > 在使用 MSVC 编译时，编译静态链接库而不是动态链接库，是一种可行的替代性解决方案。
 
-尽管目前尚未明确此问题的根本原因，但观察到当使用 MinGW-w64 工具链中的 `g++` 编译器时，该问题并未出现。鉴于此情况，对于 Windows 用户，作者现阶段建议优先选用 `g++` 进行编译以确保顺利构建。
+   ~~在使用 Microsoft Visual C++ (`cl`) 编译器在 Windows 平台上构建本线程池库时，可能会遇到如下链接错误：~~
 
-> 欢迎了解该问题成因的社区成员提供宝贵见解与解决方案！
+   ```shell
+   LINK : fatal error LNK1104: 无法打开文件“Debug\ThreadPool.lib” [xxx\ThreadPool\build\FunctionalTest.vcxproj]
+   ```
+
+   ~~尽管目前尚未明确此问题的根本原因，但观察到当使用 MinGW-w64 工具链中的 `g++` 编译器时，该问题并未出现。鉴于此情况，对于 Windows 用户，作者现阶段建议优先选用 `g++` 进行编译以确保顺利构建。~~
+
+   > ~~欢迎了解该问题成因的社区成员提供宝贵见解与解决方案！~~
 
 ### 使用预编译二进制文件
 

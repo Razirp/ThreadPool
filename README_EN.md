@@ -1,7 +1,7 @@
 C++ Thread Pool
 ==============
 
-[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)  [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=e96140&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-ff0000?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-3399ff?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) ![HitCount](https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FRazirp%2FThreadPool.json%3Fcolor%3Dff9900) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
+[![Author: Razirp](https://img.shields.io/badge/author-Razirp-cc0000)](https://github.com/Razirp) [![License](https://img.shields.io/github/license/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/blob/main/LICENSE) [![Language: C++20](https://img.shields.io/badge/Language-C%2B%2B20-blue)](https://cppreference.com/)  [![GitHub release](https://img.shields.io/github/v/release/Razirp/ThreadPool?color=660099)](https://github.com/Razirp/ThreadPool/releases) [![CSDN Blog](https://img.shields.io/static/v1?label=CSDN%20Blog&message=Visit&color=e96140&style=flat-square)](https://blog.csdn.net/qq_45899276/article/details/137938485?spm=1001.2014.3001.5501) [![中文博客](https://img.shields.io/badge/中文博客-阅读-ff0000?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs/blogs/blog.md) [![English Blog](https://img.shields.io/badge/English%20Blog-Read-3399ff?style=flat&link=https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md)](https://github.com/Razirp/ThreadPool/blob/main/docs_en/blogs/blog.md) [![GitHub stars](https://img.shields.io/github/stars/Razirp/ThreadPool)](https://github.com/Razirp/ThreadPool/stargazers)
 
 📖 **[[中文版本](README.md)]**
 
@@ -122,15 +122,19 @@ To build the thread pool library from source, follow these steps:
 
 #### Known Issues
 
-When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:
+- [x] [Partially resolved] See PR [#2](https://github.com/Razirp/ThreadPool/pull/2). Thanks to [@damengziuu](https://github.com/damengziuu):
 
-```shell
-LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
-```
+   > When compiling with MSVC, building a static library instead of a dynamic one serves as a viable alternative solution.
 
-While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process. 
+   ~~When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:~~
 
-> Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!
+   ```shell
+   LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
+   ```
+
+   ~~While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process.~~
+
+   > ~~Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!~~
 
 ### Using Precompiled Binary Files
 

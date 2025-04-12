@@ -122,19 +122,8 @@ To build the thread pool library from source, follow these steps:
 
 #### Known Issues
 
-- [x] [Partially resolved] See PR [#2](https://github.com/Razirp/ThreadPool/pull/2). Thanks to [@damengziuu](https://github.com/damengziuu):
-
-   > When compiling with MSVC, building a static library instead of a dynamic one serves as a viable alternative solution.
-
-   ~~When building this thread pool library using the Microsoft Visual C++ (`cl`) compiler on the Windows platform, you may encounter the following linking error:~~
-
-   ```shell
-   LINK : fatal error LNK1104: cannot open file 'Debug\ThreadPool.lib' [xxx\ThreadPool\build\FunctionalTest.vcxproj]
-   ```
-
-   ~~While the root cause of this issue remains unclear at present, it has been observed that employing the `g++` compiler from the MinGW-w64 toolchain does not trigger this problem. Given this circumstance, I presently recommend Windows users opt for `g++` compilation to ensure a smooth build process.~~
-
-   > ~~Sincerely welcome insights and potential solutions from experts or community members who have knowledge of the underlying cause of this issue!~~
+- [√] [Resolved] Linking error during MSVC compilation:
+   - Refer to PR [#2](https://github.com/Razirp/ThreadPool/pull/2), [#5](https://github.com/Razirp/ThreadPool/pull/5). Thanks for the contribution of [@damengziuu](https://github.com/damengziuu):
 
 ### Using Precompiled Binary Files
 

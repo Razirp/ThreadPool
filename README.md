@@ -127,19 +127,8 @@ ThreadPool/
 
 #### 已知问题
 
-- [x] 【已部分解决】见PR [#2](https://github.com/Razirp/ThreadPool/pull/2)，感谢[@damengziuu](https://github.com/damengziuu)的贡献：
-
-   > 在使用 MSVC 编译时，编译静态链接库而不是动态链接库，是一种可行的替代性解决方案。
-
-   ~~在使用 Microsoft Visual C++ (`cl`) 编译器在 Windows 平台上构建本线程池库时，可能会遇到如下链接错误：~~
-
-   ```shell
-   LINK : fatal error LNK1104: 无法打开文件“Debug\ThreadPool.lib” [xxx\ThreadPool\build\FunctionalTest.vcxproj]
-   ```
-
-   ~~尽管目前尚未明确此问题的根本原因，但观察到当使用 MinGW-w64 工具链中的 `g++` 编译器时，该问题并未出现。鉴于此情况，对于 Windows 用户，作者现阶段建议优先选用 `g++` 进行编译以确保顺利构建。~~
-
-   > ~~欢迎了解该问题成因的社区成员提供宝贵见解与解决方案！~~
+- [√] 【已解决】MSVC 编译时链接错误的问题：
+   - 见PR [#2](https://github.com/Razirp/ThreadPool/pull/2)、[#5](https://github.com/Razirp/ThreadPool/pull/5)，感谢[@damengziuu](https://github.com/damengziuu)的贡献。
 
 ### 使用预编译二进制文件
 
